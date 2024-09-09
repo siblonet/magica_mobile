@@ -9,7 +9,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Magica } from '../database/database';
 import { useFocusEffect } from "@react-navigation/native"
 import axios from "axios";
-import * as SecureStore from 'expo-secure-store';
 import { thisiswhat, whatisthis } from "./convertisseur";
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -17,7 +16,6 @@ import * as Notifications from 'expo-notifications';
 const WIDTH = Dimensions.get("window").width;
 const HEIGHT = Dimensions.get("window").height;
 
-const magica = Magica.getMagica();
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
@@ -63,60 +61,52 @@ export default function DashBoard({ navigation }) {
             addressa.value = thisiswhat(`${splo[6]}`);
      */
 
+
     useFocusEffect(
         useCallback(() => {
-            magica.transaction((txn) => {
-                txn.executeSql(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='magica_spa'",
-                    [],
-                    (tx, res) => {
-                        if (res.rows.length === 0) {
-                            txn.executeSql('DROP TABLE IF EXISTS magica_spa', []);
-                            txn.executeSql(
-                                "CREATE TABLE IF NOT EXISTS magica_spa(id INTEGER PRIMARY KEY AUTOINCREMENT, token VARCHAR(1000))",
-                                [],
-                                () => {
-                                    setIsLoaded(false);
-                                    console.log("Deleted and created table.");
-                                },
-                                (_, error) => {
-                                    console.error("Error creating table:", error);
-                                    setIsLoaded(false);
-                                }
-                            );
-                        } else {
-                            txn.executeSql(
-                                "SELECT * FROM magica_spa WHERE id ='1'",
-                                [],
-                                (tx, results) => {
-                                    if (results.rows.length === 1) {
-                                        setToken(results.rows._array[0].token);
-                                        const user = thisiswhat(`${results.rows._array[0].token}`).split("°");
-                                        setUser_id(user[0]);
-                                        Reloader();
-                                    } else {
-                                        navigation.navigate("Connexion");
+            const initializeDatabase = async () => {
+                try {
+                    const magica = await Magica.getMagica();
 
-                                        setIsLoaded(false);
-                                    }
+                    const tables = await magica.getAllAsync(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='magica_spa'"
+                    );
 
-                                },
-                                (_, error) => {
-                                    console.error("Error selecting from table:", error);
-                                    setIsLoaded(false);
-                                }
-                            );
-                        }
-                    },
-                    (_, error) => {
-                        console.error("Error executing SQL:", error);
+                    if (tables.length === 0) {
+                        await magica.execAsync(`
+                                    DROP TABLE IF EXISTS magica_spa;
+                                    CREATE TABLE IF NOT EXISTS magica_spa (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        token VARCHAR(1000)
+                                    );
+                                `);
                         setIsLoaded(false);
-                    }
-                );
-            });
+                        console.log("Deleted and created table.");
+                    } else {
+                        const results = await magica.getAllAsync(
+                            "SELECT * FROM magica_spa WHERE id ='1'"
+                        );
 
+                        if (results.length === 1) {
+                            setToken(results[0].token);
+                            const user = thisiswhat(`${results[0].token}`).split("°");
+                            setUser_id(user[0]);
+                            Reloader(); // Assuming Reloader is a function
+                        } else {
+                            navigation.navigate("Connexion");
+                            setIsLoaded(false);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error executing SQL:", error);
+                    setIsLoaded(false);
+                }
+            };
+
+            initializeDatabase();
         }, [])
     );
+
 
 
     useEffect(() => {

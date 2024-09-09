@@ -6,14 +6,12 @@ import {
 import { picts, routx } from "../utilitis";
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from "expo-linear-gradient";
-import { Magica } from '../database/database';
 import axios from "axios";
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { useFocusEffect } from "@react-navigation/native"
 import { thisiswhat, whatisthis } from "./convertisseur";
-
-const magica = Magica.getMagica();
+import { Magica } from '../database/database';
 
 
 
@@ -30,82 +28,51 @@ export default function ConneXion({ navigation }) {
     useFocusEffect(
         useCallback(() => {
             (async () => {
-                registerForPushNotificationsAsync().then(secro => {
+                try {
+                    const secro = await registerForPushNotificationsAsync();
                     if (secro !== "denied") {
                         setNotif(secro);
                     } else {
                         setNotif("denied");
                         if (Platform.OS === 'ios') {
-                            Linking.openURL();
+                            Linking.openURL(); // Add appropriate URL
                         } else {
                             Linking.openSettings();
                         }
                     }
-                }).catch((ee) => {
-                    alert(
-                        "FCM APNS GENERING" + ee
-                    );
-                });
+                } catch (error) {
+                    alert("FCM APNS GENERING: " + error);
+                }
             })();
-
-        }, []));
-
-
-
-
-
-
-
+        }, [])
+    );
 
     useEffect(() => {
-        magica.transaction((txn) => {
-            txn.executeSql(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='magica_spa'",
-                [],
-                (tx, res) => {
-                    if (res.rows.length === 0) {
-                        txn.executeSql('DROP TABLE IF EXISTS magica_spa', []);
-                        txn.executeSql(
-                            "CREATE TABLE IF NOT EXISTS magica_spa(id INTEGER PRIMARY KEY AUTOINCREMENT, token VARCHAR(1000))",
-                            [],
-                            () => {
-                                setIsLoaded(false);
-                                console.log("Deleted and created table.");
-                            },
-                            (_, error) => {
-                                console.error("Error creating table:", error);
-                                setIsLoaded(false);
-                            }
-                        );
-                    } else {
-                        txn.executeSql(
-                            "SELECT * FROM magica_spa WHERE id ='1'",
-                            [],
-                            (tx, results) => {
-                                if (results.rows.length === 1) {
-                                    navigation.navigate("Home");
-                                } else {
-                                    setIsLoaded(false);
-                                }
-                            },
-                            (_, error) => {
-                                console.error("Error selecting from table:", error);
-                                setIsLoaded(false);
-                            }
-                        );
-                    }
-                },
-                (_, error) => {
-                    console.error("Error executing SQL:", error);
+        const initializeDatabase = async () => {
+            try {
+                const magica = await Magica.getMagica();
+
+                await magica.execAsync(`
+                    PRAGMA journal_mode = WAL;
+                    CREATE TABLE IF NOT EXISTS magica_spa (id INTEGER PRIMARY KEY AUTOINCREMENT, token VARCHAR(1000));
+                `);
+
+                const firstRow = await magica.getFirstAsync("SELECT * FROM magica_spa WHERE id = 1");
+
+                if (firstRow) {
+                    navigation.navigate("Home");
+                } else {
                     setIsLoaded(false);
                 }
-            );
-        });
-    }, []);
 
+            } catch (error) {
+                console.error("Error during database initialization:", error);
+                setIsLoaded(false);
+            }
+        };
 
-
-
+        initializeDatabase();
+    }, [navigation]);
 
     const Connect = async () => {
         setIsLoaded(true);
@@ -123,32 +90,13 @@ export default function ConneXion({ navigation }) {
                     const splo = response.data.token.split("°");
                     const userif = thisiswhat(`${splo[0]}`);
                     if (splo[2] !== "XORVMG") {
-                        axios.put(`${routx.Baseurl}notificationmagicauser/${userif}`, { pushtoken: `${notif}` }).then(answ => {
-                            magica.transaction((tx) => {
-                                tx.executeSql(
-                                    'INSERT INTO magica_spa(token) VALUES (?)',
-                                    [response.data.token],
-                                    (tx, results) => {
-                                        if (results.rowsAffected > 0) {
-                                            setIsLoaded(false);
-                                            navigation.navigate("Home");
+                        await axios.put(`${routx.Baseurl}notificationmagicauser/${userif}`, { pushtoken: `${notif}` });
 
-                                        } else {
-                                            alert('There was an error during the insertion!');
-                                            setIsLoaded(false);
-                                        }
-                                    },
-                                    (_, error) => {
-                                        console.error("Error inserting into table:", error);
-                                        setIsLoaded(false);
-                                    }
-                                );
-                            });
-                        }).catch(error => {
-                            setIsLoaded(false);
-                            Alert.alert("Information Rejetée", "Veillez saisir correctement vos identifiants");
+                        const magica = await Magica.getMagica();
+                        await magica.runAsync('INSERT INTO magica_spa(token) VALUES (?)', response.data.token);
 
-                        });
+                        setIsLoaded(false);
+                        navigation.navigate("Home");
                     } else {
                         Alert.alert("Authorisation Requise", "Permission Réjeté");
                         setIsLoaded(false);
@@ -167,8 +115,6 @@ export default function ConneXion({ navigation }) {
             setIsLoaded(false);
         }
     };
-
-
 
 
     async function registerForPushNotificationsAsync() {

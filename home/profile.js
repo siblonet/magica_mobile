@@ -15,7 +15,6 @@ import { thisiswhat, whatisthis } from "./convertisseur";
 import { picts, routx } from "../utilitis";
 import { Magica } from '../database/database';
 
-const magica = Magica.getMagica();
 
 
 const WIDTH = Dimensions.get('window').width;
@@ -56,29 +55,35 @@ export default function Profile({ navigation }) {
     const [autoryzed, setautoryzed] = useState();
 
 
-
     useFocusEffect(
         useCallback(() => {
-            setIsloading(true);
-            setTouched(true);
-            magica.transaction(function (txn) {
-                txn.executeSql(
-                    "SELECT * FROM magica_spa WHERE id ='1'",
-                    [],
-                    (tx, results) => {
-                        if (results.rows.length == 1) {
-                            setToken(results.rows._array[0].token);
-                            Converta(results.rows._array[0].token);
-                        } else {
-                            navigation.navigate("Connexion");
-                        }
+            const loadData = async () => {
+                try {
+                    setIsloading(true);
+                    setTouched(true);
+
+                    const magica = await Magica.getMagica();
+
+                    const results = await magica.getAllAsync(
+                        "SELECT * FROM magica_spa WHERE id ='1'"
+                    );
+
+                    if (results.length === 1) {
+                        setToken(results[0].token);
+                        Converta(results[0].token); // Assuming Converta is a function
+                    } else {
+                        navigation.navigate("Connexion");
                     }
-                );
+                } catch (error) {
+                    console.error("Error executing SQL:", error);
+                }
+            };
 
-            });
-
+            loadData();
         }, [])
     );
+
+
 
     async function Log_Me_Out() {
         Alert.alert(
@@ -94,38 +99,18 @@ export default function Profile({ navigation }) {
                     text: 'Oui',
                     onPress: async () => {
                         try {
-                            // Check if oneci is properly initialized
-                            if (!magica) {
-                                console.error("oneci database is not initialized.");
-                                return;
-                            }
+                            const magica = await Magica.getMagica();
 
-                            await magica.transaction(async (txn) => {
-                                console.log("in transaction");
-                                await txn.executeSql(
-                                    'DROP TABLE IF EXISTS magica_spa',
-                                    [],
-                                    () => {
-                                        console.log("in droped");
-                                    },
-                                    (_, error) => {
-                                        console.error("Error dropping table:", error);
-                                    }
-                                );
+                            await magica.execAsync(`
+                            DROP TABLE IF EXISTS magica_spa;
+                            CREATE TABLE IF NOT EXISTS magica_spa (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                token VARCHAR(1000)
+                            );
+                        `);
 
-                                await txn.executeSql(
-                                    "CREATE TABLE IF NOT EXISTS magica_spa(id INTEGER PRIMARY KEY AUTOINCREMENT, token VARCHAR(1000))",
-                                    [],
-                                    () => {
-                                        console.log("Deleted table 'magica_spa' and created a new one.");
-                                        setToken(""); // Assuming setToken is a function to update token state
-                                        navigation.navigate("Connexion");
-                                    },
-                                    (_, error) => {
-                                        console.error("Error creating table:", error);
-                                    }
-                                );
-                            });
+                            setToken(""); // Clear the token state
+                            navigation.navigate("Connexion");
                         } catch (error) {
                             console.error("Error executing transaction:", error);
                         }
@@ -134,12 +119,6 @@ export default function Profile({ navigation }) {
             ]
         );
     };
-
-
-
-
-
-
 
 
 
@@ -203,8 +182,10 @@ export default function Profile({ navigation }) {
         }
     }
 
+
     function Update_user() {
         setIsloading(true);
+
         const toUpdate = {
             nom: name,
             phone: call,
@@ -213,26 +194,27 @@ export default function Profile({ navigation }) {
         const token = `${id}°${name}°${call}°${autoryzed}`;
 
         axios.put(`${routx.Baseurl}/people/personupdate/${id}`, toUpdate)
-            .then(() => {
-                magica.transaction((txn) => {
-                    txn.executeSql(
+            .then(async () => {
+                try {
+                    const magica = await Magica.getMagica();
+
+                    const result = await magica.runAsync(
                         'UPDATE magica_spa SET token=? WHERE id=?',
-                        [token, "1"],
-                        (tx, results) => {
-                            if (results.rowsAffected > 0) {
-                                setNom(name);
-                                setPhone(call);
-                            } else {
-                                Log_Me_Out();
-                                console.log("An error occurred while updating token.");
-                            }
-                        },
-                        (_, error) => {
-                            console.error("Error executing SQL:", error);
-                            Log_Me_Out();
-                        }
+                        [token, "1"]
                     );
-                });
+
+                    if (result.changes > 0) {
+                        setNom(name);
+                        setPhone(call);
+                    } else {
+                        Log_Me_Out();
+                        console.log("An error occurred while updating the token.");
+                    }
+                } catch (error) {
+                    console.error("Error executing SQL:", error);
+                    Log_Me_Out();
+                }
+
                 setIsloading(false);
                 setTouched(false);
             })
@@ -241,7 +223,6 @@ export default function Profile({ navigation }) {
                 console.error("Error updating user:", error);
             });
     }
-
 
 
 
@@ -393,7 +374,7 @@ export default function Profile({ navigation }) {
 
                         <View style={hilai.inpuCon}>
                             <View style={{ paddingVertical: 5, paddingHorizontal: 3, borderRadius: 10, backgroundColor: "#ccc", alignItems: "center", justifyContent: "center", alignSelf: "flex-end" }}>
-                            <Ionicons style={{}} name="call-outline" size={20} color={'#3526AF'} />
+                                <Ionicons style={{}} name="call-outline" size={20} color={'#3526AF'} />
                             </View>
 
                             <View style={{
