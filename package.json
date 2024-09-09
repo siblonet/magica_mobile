@@ -6,23 +6,57 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "apk": "eas build -p android --profile preview"
   },
   "dependencies": {
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/stack": "^6.4.1",
+    "axios": "^1.7.7",
+    "eas-cli": "^12.1.0",
     "expo": "~51.0.28",
+    "expo-device": "~6.0.2",
+    "expo-font": "~12.0.10",
+    "expo-image-picker": "~15.0.7",
+    "expo-linear-gradient": "~13.0.2",
+    "expo-notifications": "~0.28.16",
+    "expo-secure-store": "~13.0.2",
+    "expo-splash-screen": "~0.27.5",
+    "expo-sqlite": "^13.4.0",
     "expo-status-bar": "~1.12.1",
+    "expo-system-ui": "~3.0.7",
     "react": "18.2.0",
     "react-native": "0.74.5",
-    "expo-splash-screen": "~0.27.5",
-    "expo-system-ui": "~3.0.7",
     "react-native-gesture-handler": "~2.16.1",
+    "react-native-iphone-x-helper": "^1.3.1",
     "react-native-reanimated": "~3.10.1",
     "react-native-safe-area-context": "4.10.5",
     "react-native-screens": "3.31.1",
-    "react-native-svg": "15.2.0"
+    "react-native-svg": "15.2.0",
+    "react-native-swipe-modal-up-down": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-  "private": true
+  "private": true,
+  "description": "��#\u0000 \u0000m\u0000a\u0000g\u0000i\u0000c\u0000a\u0000_\u0000m\u0000o\u0000b\u0000i\u0000l\u0000e\u0000\r\u0000 \u0000",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/siblonet/magica_mobile.git"
+  },
+  "keywords": [
+    "Magica",
+    "Spa",
+    "John",
+    "Kokar",
+    "Dibloni",
+    "Patrick",
+    "Gnimis",
+    "Silence"
+  ],
+  "author": "John Kokar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/siblonet/magica_mobile/issues"
+  },
+  "homepage": "https://github.com/siblonet/magica_mobile#readme"
 }
