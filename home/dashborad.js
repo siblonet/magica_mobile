@@ -215,63 +215,6 @@ export default function DashBoard({ navigation }) {
 
 
 
-    async function Log_Me_Out() {
-        Alert.alert(
-            "Deconnexion",
-            "Êtes-vous sûr de vouloir vous déconnecter?",
-            [
-                {
-                    text: 'Non',
-                    onPress: () => console.log('Non pressed'),
-                    style: 'cancel',
-                },
-                {
-                    text: 'Oui',
-                    onPress: async () => {
-                        try {
-                            // Check if oneci is properly initialized
-                            if (!magica) {
-                                console.error("magica database is not initialized.");
-                                return;
-                            }
-
-                            await magica.transaction(async (txn) => {
-                                console.log("in transaction");
-                                await txn.executeSql(
-                                    'DROP TABLE IF EXISTS magica_spa',
-                                    [],
-                                    () => {
-                                        console.log("in droped");
-                                    },
-                                    (_, error) => {
-                                        console.error("Error dropping table:", error);
-                                    }
-                                );
-
-                                await txn.executeSql(
-                                    "CREATE TABLE IF NOT EXISTS magica_spa(id INTEGER PRIMARY KEY AUTOINCREMENT, token VARCHAR(1000))",
-                                    [],
-                                    () => {
-                                        console.log("Deleted table 'magica_spa' and created a new one.");
-                                        setToken(""); // Assuming setToken is a function to update token state
-                                        navigation.navigate("Connexion");
-                                    },
-                                    (_, error) => {
-                                        console.error("Error creating table:", error);
-                                    }
-                                );
-                            });
-                        } catch (error) {
-                            console.error("Error executing transaction:", error);
-                        }
-                    },
-                },
-            ]
-        );
-    };
-
-
-
     return (
         <>
             {unlock ?

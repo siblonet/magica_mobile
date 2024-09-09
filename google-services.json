@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "783984964792",
+    "project_id": "magica-spa",
+    "storage_bucket": "magica-spa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:783984964792:android:6bce05b4723203db13f04d",
+        "android_client_info": {
+          "package_name": "gnimis.magica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7bN_mE857itX8XxgQllld6FFAoQuMkhQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

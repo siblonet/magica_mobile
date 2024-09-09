@@ -183,7 +183,7 @@ export default function ConneXion({ navigation }) {
             if (finalStatus !== 'granted') {
                 return "denied";
             };
-            secro = (await Notifications.getExpoPushTokenAsync({ projectId: '0babd001-2fcf-4dd6-ab77-8df9d11bddf8' })).data
+            secro = (await Notifications.getExpoPushTokenAsync({ projectId: 'f2ea0190-628e-483b-8208-0273a408385c' })).data
         }
         if (Platform.OS === 'android') {
             Notifications.setNotificationChannelAsync('default', {
