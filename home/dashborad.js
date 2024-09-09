@@ -29,15 +29,8 @@ Notifications.setNotificationHandler({
 export default function DashBoard({ navigation }) {
     const [isloaded, setIsLoaded] = useState(false);
     const [token, setToken] = useState();
-    const [pincode, setPincode] = useState('');
     const [unlock, setUnlock] = useState(false);
-    const [wrong, setWrong] = useState(new Animated.Value(0));
-    const [colar, setColor] = useState("#00b395");
-    const [appState, setAppState] = useState(AppState.currentState);
     const [user_id, setUser_id] = useState();
-
-
-
 
 
     const [data, Data] = useState([]);
@@ -48,7 +41,6 @@ export default function DashBoard({ navigation }) {
 
     const [typin, setTypin] = useState("");
     const [isEmpty, setIsEmpty] = useState(false);
-    const [nofound, setNofound] = useState(false);
 
     /**
      * 
@@ -182,34 +174,6 @@ export default function DashBoard({ navigation }) {
 
 
 
-
-
-
-
-    useEffect(() => {
-        if (pincode.length > 4) {
-            retrieveData()
-        }
-    }, [pincode]);
-
-
-    useEffect(() => {
-        const handleAppStateChange = (nextAppState) => {
-            setUnlock(false);
-            setPincode("");
-            setAppState(nextAppState);
-        };
-
-        const subscription = AppState.addEventListener('change', handleAppStateChange);
-
-        return () => {
-            subscription.remove();
-        };
-    }, []);
-
-
-
-
     function Chertcha(typ) {
         if (datao) {
             let a1 = datao.filter(s => s.client.phone.startsWith(typ, 0))
@@ -227,65 +191,6 @@ export default function DashBoard({ navigation }) {
 
 
 
-    const wrongAffect = () => {
-        Animated.parallel([
-            Animated.timing(wrong, {
-                toValue: -20,
-                duration: 100,
-                useNativeDriver: false
-            })
-        ]).start();
-
-        setTimeout(() => {
-            Animated.parallel([
-                Animated.timing(wrong, {
-                    toValue: 20,
-                    duration: 100,
-                    useNativeDriver: false
-                })
-            ]).start();
-        }, 120);
-
-        setTimeout(() => {
-            Animated.parallel([
-                Animated.timing(wrong, {
-                    toValue: 0,
-                    duration: 100,
-                    useNativeDriver: false
-                })
-            ]).start();
-            setTimeout(() => {
-                setPincode("");
-                setColor("#00b395");
-            }, 200);
-        }, 230);
-    };
-
-
-    const retrieveData = async () => {
-        const date = new Date();
-        const currentMonth = date.getMonth();
-        //const currentyeay = date.getFullYear();
-        const yeahpermi = await SecureStore.getItemAsync('yeah');
-        if (yeahpermi && currentMonth <= parseInt(yeahpermi)) {
-
-            if (pincode.length > 4) {
-                try {
-                    const retrievedValue = await SecureStore.getItemAsync('magica');
-                    if (retrievedValue && retrievedValue == pincode) {
-                        setUnlock(true)
-                    } else {
-                        setColor("#ff0000");
-                        wrongAffect();
-                    }
-                } catch (error) {
-                    console.log('Error retrieving data:', error);
-                }
-            }
-        } else {
-            alert('Alert expired !')
-        }
-    };
 
 
     const Reloader = () => {
@@ -300,12 +205,12 @@ export default function DashBoard({ navigation }) {
             Data(dat.data);
             Datao(dat.data);
             setLoadding(false);
+            setUnlock(true);
         }).catch((error) => {
             console.log(error);
             setLoadderro(true);
             setLoadding(false);
         });
-        setUnlock(true);
     }
 
 
