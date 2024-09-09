@@ -82,6 +82,7 @@ export default function DashBoard({ navigation }) {
                                 `);
                         setIsLoaded(false);
                         console.log("Deleted and created table.");
+                        navigation.navigate("Connexion");
                     } else {
                         const results = await magica.getAllAsync(
                             "SELECT * FROM magica_spa WHERE id ='1'"
