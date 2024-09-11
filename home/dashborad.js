@@ -40,26 +40,9 @@ export default function DashBoard({ navigation }) {
     const [typin, setTypin] = useState("");
     const [isEmpty, setIsEmpty] = useState(false);
 
-    /**
-     * 
-     * const splo = token.split("°");
-        //const perset = `${_id}°${name}°${role}°${phone}°${allow}°${email}°${address}`;
-    
-            const userid_rendez = document.getElementById("userid_rendez");
-            userid_rendez.value = thisiswhat(`${splo[0]}`);
-    
-            const full_name = document.getElementById("full_name");
-            full_name.value = thisiswhat(`${splo[1]}`);
-            full_name.disabled = true;
-            const phonea = document.getElementById("phone");
-            phonea.value = thisiswhat(`${splo[3]}`);
-            phonea.disabled = true;
-            const emaila = document.getElementById("email");
-            emaila.value = thisiswhat(`${splo[5]}`);
-            emaila.disabled = true;
-            const addressa = document.getElementById("address");
-            addressa.value = thisiswhat(`${splo[6]}`);
-     */
+    const [loadinga, setLoaddinga] = useState(false);
+    const [loaderroa, setLoadderroa] = useState(false);
+
 
 
     useFocusEffect(
@@ -155,11 +138,11 @@ export default function DashBoard({ navigation }) {
     async function schedulePushNotification() {
         await Notifications.scheduleNotificationAsync({
             content: {
-                title: "You've got mail! 📬",
-                body: 'Here is the notification body',
-                data: { owner: 'Nuance', admin: "", name: "John" },
+                title: "Erreur Inconnu!",
+                body: 'Vérifiez votre connexion ou ré-essayez',
+                data: { owner: 'Magica-Spa', admin: "", name: "Dev" },
             },
-            trigger: { seconds: 5 },
+            trigger: { seconds: 2 },
         });
     }
 
@@ -204,6 +187,22 @@ export default function DashBoard({ navigation }) {
         });
     }
 
+
+    const ReloaderA = () => {
+        setLoadderroa(false);
+        setLoaddinga(true);
+
+        axios.get(`${routx.Baseurl}magicaappointmentgettingall`).then((dat) => {
+            Data(dat.data);
+            Datao(dat.data);
+            setLoaddinga(false);
+        }).catch((error) => {
+            console.log(error);
+            setLoadderroa(true);
+            setLoaddinga(false);
+            schedulePushNotification()
+        });
+    }
 
 
     return (
@@ -638,7 +637,7 @@ export default function DashBoard({ navigation }) {
                                                 </View>
                                                 <View style={{ alignItems: "flex-start", justifyContent: "flex-start", alignSelf: "flex-start" }}>
                                                     <Text style={{ fontSize: 14, color: "#ccc", fontWeight: "400" }}>
-                                                        Le {appoint.dete} à {appoint.heure}:00
+                                                        {appoint.dete} à {appoint.heure}:00
                                                     </Text>
                                                 </View>
                                             </TouchableOpacity>
@@ -648,6 +647,55 @@ export default function DashBoard({ navigation }) {
 
                         </ScrollView>
                     </View>
+                    <LinearGradient
+                        style={
+                            {
+                                shadowOffset: {
+                                    width: 0,
+                                    height: 1,
+                                },
+                                shadowOpacity: 1,
+                                shadowColor: '#ccc',
+                                elevation: 5,
+                                borderRadius: 15,
+                                position: "absolute",
+                                zIndex: 20,
+                                bottom: 25,
+                                left: 7
+                            }
+                        }
+                        colors={["#99e6ae", "#6fcaea"]}
+                        start={{ x: 0, y: 1 }}
+                        end={{ x: 1.5, y: 1 }}
+                    >
+                        <TouchableOpacity
+                            style={{
+                                padding: 8,
+
+                            }}
+                            onPress={() => ReloaderA()}
+                        >
+
+                            {loadinga &&
+                                <ActivityIndicator
+                                    visible={loadinga}
+                                    color="#000"
+                                    size={"large"}
+                                />
+                            }
+
+                            {!loadinga && !loaderroa &&
+                                <MaterialCommunityIcons name="refresh-auto" size={25} style={{ color: '#000', elevation: 4 }} />
+
+                            }
+
+                            {loaderroa &&
+                                <MaterialCommunityIcons name="refresh-auto" size={25} style={{ color: 'red', elevation: 4 }} />
+
+                            }
+
+                        </TouchableOpacity>
+                    </LinearGradient>
                 </SafeAreaView>
                 :
                 <View style={

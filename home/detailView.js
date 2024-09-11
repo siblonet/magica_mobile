@@ -15,7 +15,7 @@ const ViewOrder = ({ navigation, route }) => {
     const { all, user_id } = route.params;
     const [order, setOrder] = useState(all); // readonly
     const [scrip, setScript] = useState(); // readonly
-    const deliveryStatus = all.statut === "done" ? "Livré" : all.statut == "waiting" ? "En attente" : all.statut === "En cours" ? "En cours" : "Échoué";
+    const deliveryStatus = all.statut === "done" ? "Accepté" : all.statut == "waiting" ? "En attente" : all.statut === "En cours" ? "Prise" : "Réposté";
 
     const [done, setDone] = useState(false);
     const [onway, setOnway] = useState(false);
@@ -101,7 +101,7 @@ const ViewOrder = ({ navigation, route }) => {
 
 
     const canceleOrder = (oid) => {
-        if (deliveryStatus !== "Livré") {
+        if (deliveryStatus !== "Accepté") {
             Alert.alert(
                 "Annullé Commande",
                 "Êtes-vous sûr de vouloir annuller?",
@@ -274,7 +274,7 @@ const ViewOrder = ({ navigation, route }) => {
                 <View style={
                     {
                         height: 600,
-                        paddingHorizontal: "5%"
+                        paddingHorizontal: "5%",
                     }
                 }>
                     <View style={{ height: 15 }}></View>
@@ -363,7 +363,7 @@ const ViewOrder = ({ navigation, route }) => {
                     <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
 
                         <View style={{ borderRadius: 10, height: 40, width: "20%", alignItems: "center", justifyContent: "center", marginRight: 5 }}>
-                            <View style={{ padding: 5, borderRadius: 10, height: "100%", width: "100%", position: "absolute", backgroundColor: "#eee", borderWidth: 1, borderColor: deliveryStatus === 'Livré' ? '#006b21' : deliveryStatus === 'En attente' ? '#ebc474' : deliveryStatus === 'En cours' ? '#6fcaea' : 'rgb(255, 0, 149)' }}>
+                            <View style={{ padding: 5, borderRadius: 10, height: "100%", width: "100%", position: "absolute", backgroundColor: "#eee", borderWidth: 1, borderColor: deliveryStatus === 'Accepté' ? '#006b21' : deliveryStatus === 'En attente' ? '#ebc474' : deliveryStatus === 'Prise' ? '#6fcaea' : 'rgb(255, 0, 149)' }}>
                             </View>
                             <Text style={{ fontSize: 10, fontWeight: "bold", textAlign: "center" }}>{deliveryStatus}</Text>
                         </View>
@@ -394,7 +394,7 @@ const ViewOrder = ({ navigation, route }) => {
                                 padding: 8,
                                 backgroundColor: '#ebc474',
                                 borderRadius: 8,
-                            }} disabled={deliveryStatus == "Livré" ? true : false} onPress={() => ChangeStatos("waiting", order._id)}>
+                            }} disabled={deliveryStatus == "Accepté" ? true : false} onPress={() => ChangeStatos("waiting", order._id)}>
                                 {review ?
                                     <ActivityIndicator
                                         visible={review}
@@ -420,7 +420,7 @@ const ViewOrder = ({ navigation, route }) => {
                                 padding: 8,
                                 backgroundColor: '#6fcaea',
                                 borderRadius: 8,
-                            }} disabled={deliveryStatus == "Livré" ? true : false} onPress={() => ChangeStatos("En cours", order._id)}>
+                            }} disabled={deliveryStatus == "Accepté" ? true : false} onPress={() => ChangeStatos("En cours", order._id)}>
                                 {onway ?
                                     <ActivityIndicator
                                         visible={onway}
@@ -429,7 +429,7 @@ const ViewOrder = ({ navigation, route }) => {
                                     />
 
                                     :
-                                    <Text style={{ fontSize: 10, fontWeight: "bold", textAlign: "center", color: "#fff" }}>En cou</Text>
+                                    <Text style={{ fontSize: 10, fontWeight: "bold", textAlign: "center", color: "#fff" }}>Prise</Text>
 
                                 }
 
@@ -446,7 +446,7 @@ const ViewOrder = ({ navigation, route }) => {
                                 padding: 8,
                                 backgroundColor: 'rgb(255, 0, 149)',
                                 borderRadius: 8,
-                            }} disabled={deliveryStatus == "Livré" ? true : false} onPress={() => ChangeStatos("fail", order._id)}>
+                            }} disabled={deliveryStatus == "Accepté" ? true : false} onPress={() => ChangeStatos("fail", order._id)}>
                                 {fail ?
                                     <ActivityIndicator
                                         visible={fail}
@@ -456,7 +456,7 @@ const ViewOrder = ({ navigation, route }) => {
 
                                     :
 
-                                    <Text style={{ fontSize: 10, fontWeight: "bold", textAlign: "center", color: "#fff" }}>Échèc</Text>
+                                    <Text style={{ fontSize: 10, fontWeight: "bold", textAlign: "center", color: "#fff" }}>Réposté</Text>
 
                                 }
 
@@ -473,7 +473,7 @@ const ViewOrder = ({ navigation, route }) => {
                                 padding: 8,
                                 backgroundColor: '#006b21',
                                 borderRadius: 8,
-                            }} disabled={deliveryStatus == "Livré" ? true : false} onPress={() => ChangeStatos("done", order._id)}>
+                            }} disabled={deliveryStatus == "Accepté" ? true : false} onPress={() => ChangeStatos("done", order._id)}>
 
                                 {done ?
                                     <ActivityIndicator
@@ -484,7 +484,7 @@ const ViewOrder = ({ navigation, route }) => {
 
                                     :
 
-                                    <Text style={{ fontSize: 10, fontWeight: "bold", textAlign: "center", color: "#fff" }}>Effectuée</Text>
+                                    <Text style={{ fontSize: 10, fontWeight: "bold", textAlign: "center", color: "#fff" }}>Accepté</Text>
                                 }
 
                             </TouchableOpacity>
@@ -529,7 +529,7 @@ const ViewOrder = ({ navigation, route }) => {
 
                             <View style={{}}>
                                 <Text style={{ fontSize: 14 }}>{order.client.name}</Text>
-                                <Text style={{ fontSize: 14 }}> Le {order.dete} à {order.heure}:00</Text>
+                                <Text style={{ fontSize: 14 }}> {order.dete} à {order.heure}:00</Text>
                             </View>
                         </View>
 
@@ -661,6 +661,7 @@ const ViewOrder = ({ navigation, route }) => {
                         </TouchableOpacity>
                     </LinearGradient>
                 </View>
+                <View style={{ height: 400 }}></View>
 
             </ScrollView >
         </View >

@@ -224,8 +224,8 @@ const ServiceDetail = ({ navigation, route }) => {
 
                 <View style={
                     {
-                        height: 600,
-                        paddingHorizontal: "5%"
+                        height: 500,
+                        paddingHorizontal: "5%",
                     }
                 }>
                     <View style={{ height: 15 }}></View>
@@ -342,7 +342,7 @@ const ServiceDetail = ({ navigation, route }) => {
                                 },
                                 shadowOpacity: 1,
                                 shadowColor: '#ccc',
-                                elevation: 2,
+                                elevation: 5,
                                 borderRadius: 8,
                             }
                         }
@@ -387,7 +387,7 @@ const ServiceDetail = ({ navigation, route }) => {
                                 },
                                 shadowOpacity: 1,
                                 shadowColor: '#ccc',
-                                elevation: 1,
+                                elevation: 5,
                                 borderRadius: 8,
                             }
                         }
@@ -423,6 +423,7 @@ const ServiceDetail = ({ navigation, route }) => {
                         </TouchableOpacity>
                     </LinearGradient>
                 </View>
+                <View style={{ height: 400 }}></View>
 
             </ScrollView >
         </View >
